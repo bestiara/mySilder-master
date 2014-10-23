@@ -4,79 +4,24 @@ body {
     padding: 0;
 }
 
-h1 {
-    text-align: center;
-}
-
 .container {
-    width: 1000px;
+    height: 100%;
     margin: 0 auto;
+    background-color: black;
 }
 
 .main {
-    width: 25%;
-    height: 20%;
+    width: 60%;
+    height: 50%;
+    margin: 0 20%;
     position: absolute;
 }
 
-.main_right {
-    width: 25%;
-    height: 20%;
-    position: absolute;
-    margin-left: 600px;
-}
-
-.main_bottom {
-    width: 25%;
-    height: 20%;
-    position: absolute;
-    margin-top: 300px;
-}
-
-.main_left {
-    width: 25%;
-    height: 20%;
-    position: absolute;
-    margin-top: 300px;
-    margin-left: 600px;
-}
-
-.main_top {
-    width: 25%;
-    height: 20%;
-    position: absolute;
-    margin-top: 600px;
-
-}
-
-.main_right_link {
-    width: 25%;
-    height: 20%;
-    position: absolute;
-    margin-top: 600px;
-    margin-left: 600px;
-}
-
-.slidewrapper {
-    position: relative;
-    left: 0;
-    top: 0;
-    margin: 0;
-    padding: 0;
-}
-
-.slide {
-    float: left;
-    list-style: none;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-}
 .caption {
-    width: 50%;
+    width: 100%;
     height: 90px;
     position: absolute;
-    bottom: 30px;
+    bottom: 0;
     background-color: black;
     opacity: 0.6;
 }
@@ -88,6 +33,61 @@ h1 {
     margin:  0 0 0 50px;
     line-height: 90px;
     text-transform: uppercase;
+}
+
+.main_right {
+    width: 500px;
+    height: 250px;
+    position: absolute;
+    margin-left: 600px;
+}
+
+.main_bottom {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    /*margin-top: 300px;*/
+}
+
+.main_left {
+    width: 500px;
+    height: 250px;
+    position: absolute;
+    margin-top: 300px;
+    margin-left: 600px;
+}
+
+.main_top {
+    width: 500px;
+    height: 250px;
+    position: absolute;
+    margin-top: 600px;
+
+}
+
+.main_right_link {
+    width: 500px;
+    height: 250px;
+    position: absolute;
+    margin-top: 600px;
+    margin-left: 600px;
+}
+
+.slidewrapper {
+    position: absolute;
+    /*left: 0;*/
+    /*top: 0;*/
+    margin: 0;
+    padding: 0;
+}
+
+ul.slidewrapper li {
+    float: left;
+    list-style: none;
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
 }
 
 .slide img {
@@ -106,7 +106,7 @@ h1 {
 }
 
 .arrow {
-    width: 45px;
+    width: 32px;
     height: 100%;
     position: absolute;
 }

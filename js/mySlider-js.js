@@ -42,7 +42,7 @@
 
             var $this = $(this),
                 $slideWrapper = $this.find('.slidewrapper'), //контейнер с слайдами
-                $slide = $this.find('.slide'), //контейнер слайда
+                $slide = $this.find('ul.slidewrapper li'), //контейнер слайда
                 slideCount = $slideWrapper.children().size(), //количество слайдов
                 thumbsPerSlide, //число превью на один слайд (для прокрутки превью)
                 slideWidth, //ширина слайдера
