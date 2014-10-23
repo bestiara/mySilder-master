@@ -265,9 +265,7 @@
                     $slide.height(_slideHeight);
                     $slide.width(_slideWidth);
 
-                    $slideWrapper.css({
-                        left: -_slideWidth * $slideWrapper.data('current')
-                    });
+
 
                 } else {
 
@@ -278,6 +276,10 @@
                     switch (settings.thumbPos) {
 
                         case 'bottom':
+
+                            $slideWrapper.css({
+                                left: -_slideWidth * $slideWrapper.data('current')
+                            });
 
                             thumbsPerSlide = _slideWidth / thumbSize;
 
@@ -295,6 +297,10 @@
                             break;
 
                         case 'top':
+
+                            $slideWrapper.css({
+                                left: -_slideWidth * $slideWrapper.data('current')
+                            });
 
                             thumbsPerSlide = _slideWidth / thumbSize;
 
@@ -328,7 +334,7 @@
                             if (settings.links) {
 
                                 $slideWrapper.css({
-                                    left: -_slideWidth * $slideWrapper.data('current') + 3 * thumbSize * $slideWrapper.data('current')
+                                    left: -_slideWidth * $slideWrapper.data('current') + 2 * thumbSize * $slideWrapper.data('current')
                                 });
 
                                 $this.width(_slideWidth - 2 * thumbSize);
