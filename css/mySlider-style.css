@@ -30,7 +30,7 @@ body {
     opacity: 1;
     color: white;
     position: absolute;
-    margin:  0 0 0 50px;
+    margin: 0 0 0 50px;
     line-height: 90px;
     text-transform: uppercase;
 }
@@ -173,19 +173,19 @@ ul.slidewrapper li {
     padding: 0;
 }
 
-.thumbnail-container .thumb {
-    /*margin: 5px 5px 0 0;*/
-    width: 100%;
+.thumbnail-container li {
     float: left;
     list-style: none;
-    background-color: #79b1df;
+    background-size: cover;
+    width: 185px;
+    height: 115px;
 }
 
-.thumbnail-container .thumb.active {
+ul.thumbnail-container li.active {
     opacity: 0.6;
 }
 
-.thumbnail-container .thumb a {
+.thumbnail-container li a {
     color: #547b9c;
     text-decoration: none;
     position: absolute;

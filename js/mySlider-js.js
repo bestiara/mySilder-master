@@ -14,33 +14,20 @@
             'selector': true, // отображение селекторов
             'thumbnail': true, // отображение миниатюр
             'thumbPos': 'bottom', // положение миниатюр (bottom, top, left, right)
-            'links': false, // ссылки в превью (для положений left, right)
             'thumbSize': 75, // размер превью
             'responsivity': 'parent', // 'parentHeight', 'parentWidth',
             'resolution': '3:2', //отношение сторон слайдера (ширина/высота)
             'caption': false //подписи слайдеров
         }, options);
 
-        //var methods = {
-        //    init : function( options ) {
-        //
-        //    },
-        //    show : function( ) {
-        //
-        //    },
-        //    hide : function( ) {
-        //
-        //    },
-        //    update : function( content ) {
-        //
-        //    }
-        //};
-
-        //todo инкапсулировать методы
+        //todo сделать темы оформления
+        //todo оптимизировать вычисление динамических элементов
+        //todo сделать различные варианты вписывания картинок в слайд
 
         this.each(function () {
 
             var $this = $(this),
+                $parent = $this.parent(),
                 $slideWrapper = $this.find('.slidewrapper'), //контейнер с слайдами
                 $slide = $this.find('ul.slidewrapper li'), //контейнер слайда
                 slideCount = $slideWrapper.children().size(), //количество слайдов
@@ -49,6 +36,12 @@
                 slideHeight, //высота слайдера
                 image = new Image(),
                 direction, //направление скролла превью слайдов
+
+                $thumbnail = $parent.find('.thumbnail'),
+                $thumbWrapper = $parent.find('.thumbnail-container'),
+                $thumb = $parent.find('ul.thumbnail-container li'),
+                thumbWidth,
+                thumbHeight,
                 $sliderControls = $('<div/>', { //контейнер селекторов
                     class: 'slider-controls',
                     style: 'display: none;'
@@ -57,27 +50,12 @@
                     class: 'control-slide',
                     style: 'width: 12px; height: 12px;'
                 }),
-                $thumbnail = $('<div/>', {
-                    class: 'thumbnail',
-                    style: 'overflow: hidden; position: absolute;'
-                }),
-                $thumbWrapper = $('<ul/>', {
-                    class: 'thumbnail-container',
-                    width: slideCount * slideWidth
-                }),
-                $thumb = $('<li/>', {
-                    class: 'thumb',
-                    style: 'background-size: cover;'
-                }),
                 $caption = $('<div/>', {
                     class: 'caption',
                     style: 'display: none;'
                 }),
-                $link = $('<a/>', {}),
+
                 sliderTimer;
-
-
-            $thumbWrapper.attr('data-current', 0);
 
             $this.css({
                 overflow: 'hidden',
@@ -101,15 +79,15 @@
                     addCaptions()
                 }
 
+                if (settings.thumbnail) {
+                    addThumbnails();
+                }
+
                 setSliderSize();
                 drawSlider(slideWidth, slideHeight);
 
                 resizeImg();
 
-
-                if (settings.thumbnail) {
-                    addThumbnails();
-                }
 
                 setDirection();
                 startAutoSlide();
@@ -120,13 +98,13 @@
                     resW = resArr[0],
                     resH = resArr[1];
                 if (settings.responsivity == 'parent') {
-                    slideWidth = $this.parent().width(); //ширина родителя слайдера
-                    slideHeight = $this.parent().height(); //высота родителя слайдера
+                    slideWidth = $parent.width(); //ширина родителя слайдера
+                    slideHeight = $parent.height(); //высота родителя слайдера
                 } else if (settings.responsivity == 'parentWidth') {
-                    slideWidth = $this.parent().width();
+                    slideWidth = $parent.width();
                     slideHeight = slideWidth / resW * resH;
                 } else if (settings.responsivity == 'parentHeight') {
-                    slideHeight = $this.parent().height();
+                    slideHeight = $parent.height();
                     slideWidth = slideHeight / resH * resW;
                 }
             }
@@ -149,29 +127,29 @@
 
             function addCaptions() {
                 $slide.each(function () {
-                    $clone = $caption.clone();
-                    $clone.append('<h1>' + $(this).data('caption') + '</h1>');
-                    $(this).append($clone);
+                    var $cloneCap = $caption.clone();
+                    $cloneCap.append('<h1>' + $(this).data('caption') + '</h1>');
+                    $(this).append($cloneCap);
                 });
             }
 
             function addControls() { //добавляем кружочки-селекторы
                 $controlSlide.addClass('active');
                 $slide.each(function () {
-                    $clone = $controlSlide.clone();
-                    $clone.click(function (event) {
+                    var $cloneSlide = $controlSlide.clone();
+                    $cloneSlide.click(function (event) {
                         event.preventDefault();
                         if (settings.thumbnail) {
                             if ((settings.thumbPos == 'top') || (settings.thumbPos == 'bottom')) {
-                                setSlide($(this));
+                                setSlide($(this).index());
                             } else if ((settings.thumbPos == 'left') || (settings.thumbPos == 'right')) {
-                                setSlide($(this));
+                                setSlide($(this).index());
                             }
                         } else {
-                            setSlide($(this));
+                            setSlide($(this).index());
                         }
                     });
-                    $sliderControls.append($clone);
+                    $sliderControls.append($cloneSlide);
                     $sliderControls.css('margin-left', -$controlSlide.width() * slideCount / 2);
                     $controlSlide.removeClass('active');
                 });
@@ -179,71 +157,95 @@
                 $this.append($sliderControls);
             }
 
-            function addLink($_thumb, $_slide) { //добавляем ссылки в превью
-
-                $link.attr('href', $_slide.data('url'));
-                $link.css({
-                    'height': 'inherit',
-                    'width': '200%',
-                    'display': 'table-cell',
-                    'text-align': settings.thumbPos,
-                    'line-height': $thumb.height() + 'px'
-                });
-
-                $link.html($_slide.data('text'));
-                $_thumb.append($link);
-            }
-
             function resizeImg() { //подгоняем img под размеры слайдов, аналогично background: cover
 
                 $slide.each(function () {
 
                     var $slide = $(this),
-                        $img = $slide.find('img');
+                        $img = $slide.find('img'),
+                        imageWidth,
+                        imageHeight;
 
                     image.src = $img.attr('src');
+                    imageWidth = image.width;
+                    imageHeight = image.height;
 
-                    if (slideWidth / image.width > slideHeight / image.height) {
+                    if (slideWidth / imageWidth > slideHeight / imageHeight) {
 
                         $img.width(slideWidth);
-                        $img.height(slideWidth / image.width * image.height);
+                        $img.height(slideWidth / imageWidth * imageHeight);
 
                     } else {
 
                         $img.height(slideHeight);
-                        $img.width(slideHeight / image.height * image.width);
+                        $img.width(slideHeight / imageHeight * imageWidth);
 
                     }
                 });
             }
 
             function addThumbnails() { //добавляем превью
-                $slide.each(function () {
 
-                    var $slide = $(this),
-                        $imgSrc = $slide.find('img').attr('src');
+                if (settings.thumbnail == 'custom') {
 
-                    $thumb.css('background-image', 'url(' + $imgSrc + ')');
-                    if (settings.links) {
-                        addLink($thumb, $slide)
-                    }
-                    $clone = $thumb.clone();
-                    $clone.click(function (event) {
-                        event.preventDefault();
-                        if (settings.thumbnail) {
-                            if ((settings.thumbPos == 'top') || (settings.thumbPos == 'bottom')) {
-                                setSlide($slide);
-                            } else if ((settings.thumbPos == 'left') || (settings.thumbPos == 'right')) {
-                                setSlide($slide);
-                            }
-                        }
+                    thumbWidth = $thumb.first().width();
+                    thumbHeight = $thumb.first().height();
+
+                    $thumbnail.css({
+                        overflow: 'hidden',
+                        position: 'absolute'
                     });
 
-                    $thumbWrapper.append($clone);
-                    $thumb.removeClass('active');
-                    $thumbnail.append($thumbWrapper);
-                    $this.parent().append($thumbnail);
-                });
+                    if ($thumbWrapper.size() == 1) {
+                        $thumbWrapper.children().each(function () {
+                            $(this).click(function () {
+                                setSlide($(this).index());
+                            })
+                        });
+                    } else if ($thumbWrapper.size() == 0) {
+                        alert('Контейнер .thumbnail-container не найден');
+                    }
+                } else {
+
+                    var $thumbnail_ = $('<div/>', {
+                            class: 'thumbnail',
+                            style: 'overflow: hidden; position: absolute;'
+                        }),
+                        $thumbWrapper_ = $('<ul/>', {
+                            class: 'thumbnail-container'
+                            //width: slideCount * slideWidth
+                        }),
+                        $thumb_ = $('<li/>', {
+                            style: 'background-size: cover;'
+                        });
+
+                    thumbWidth = settings.thumbSize;
+                    thumbHeight = settings.thumbSize;
+                    //alert(thumbWidth + ' ' + thumbHeight);
+
+                    $slide.each(function () {
+                        var $slide = $(this),
+                            $imgSrc = $slide.find('img').attr('src');
+
+                        $thumb_.css('background-image', 'url(' + $imgSrc + ')');
+                        var $cloneThumb = $thumb_.clone();
+                        $cloneThumb.click(function (event) {
+                            event.preventDefault();
+                            if (settings.thumbnail) {
+                                if ((settings.thumbPos == 'top') || (settings.thumbPos == 'bottom')) {
+                                    setSlide($slide.index());
+                                } else if ((settings.thumbPos == 'left') || (settings.thumbPos == 'right')) {
+                                    setSlide($slide.index());
+                                }
+                            }
+                        });
+
+                        $thumbWrapper_.append($cloneThumb);
+                        $thumb_.removeClass('active');
+                        $thumbnail_.append($thumbWrapper_);
+                        $parent.append($thumbnail_);
+                    });
+                }
 
                 if (settings.thumbnail) {
                     if ((settings.thumbPos == 'top') || (settings.thumbPos == 'bottom')) {
@@ -255,7 +257,9 @@
             }
 
             function drawSlider(_slideWidth, _slideHeight) { //задаем размеры динамических элементов слайдера
-                var thumbSize = settings.thumbSize;
+
+                $slideWrapper.attr('data-current', 0);
+                $thumbWrapper.attr('data-current', 0);
 
                 if (!settings.thumbnail) {
 
@@ -266,12 +270,11 @@
                     $slide.width(_slideWidth);
 
 
-
                 } else {
 
-                    $thumb.width(thumbSize);
-                    $thumb.height(thumbSize);
-                    $thumbnail.height(thumbSize);
+                    $thumb.width(thumbWidth);
+                    $thumb.height(thumbHeight);
+                    $thumbnail.height(thumbHeight);
 
                     switch (settings.thumbPos) {
 
@@ -281,18 +284,18 @@
                                 left: -_slideWidth * $slideWrapper.data('current')
                             });
 
-                            thumbsPerSlide = _slideWidth / thumbSize;
+                            thumbsPerSlide = _slideWidth / thumbWidth;
 
-                            $this.height(_slideHeight - thumbSize);
+                            $this.height(_slideHeight - thumbHeight);
                             $this.width(_slideWidth);
 
-                            $slide.height(_slideHeight - thumbSize);
+                            $slide.height(_slideHeight - thumbHeight);
                             $slide.width(_slideWidth);
 
                             $thumbnail.width(_slideWidth);
-                            $thumbnail.height(thumbSize);
+                            $thumbnail.height(thumbHeight);
 
-                            $thumbWrapper.width(thumbSize * slideCount);
+                            $thumbWrapper.width(thumbWidth * slideCount);
 
                             break;
 
@@ -302,18 +305,18 @@
                                 left: -_slideWidth * $slideWrapper.data('current')
                             });
 
-                            thumbsPerSlide = _slideWidth / thumbSize;
+                            thumbsPerSlide = _slideWidth / thumbWidth;
 
-                            $this.height(_slideHeight - thumbSize);
+                            $this.height(_slideHeight - thumbHeight);
                             $this.width(_slideWidth);
 
-                            $slide.height(_slideHeight - thumbSize);
+                            $slide.height(_slideHeight - thumbHeight);
                             $slide.width(_slideWidth);
 
                             $thumbnail.width(slideWidth);
-                            $thumbnail.height(thumbSize);
+                            $thumbnail.height(thumbHeight);
 
-                            $thumbWrapper.width(thumbSize * slideCount);
+                            $thumbWrapper.width(thumbWidth * slideCount);
 
                             $thumbnail.css({
                                 position: 'absolute',
@@ -326,137 +329,78 @@
 
                         case 'left':
 
-                            $thumbnail.width(thumbSize);
+                            $thumbnail.width(thumbWidth);
                             $thumbnail.height(_slideHeight);
 
-                            thumbsPerSlide = _slideHeight / thumbSize;
+                            thumbsPerSlide = _slideHeight / thumbHeight;
 
-                            if (settings.links) {
 
-                                $slideWrapper.css({
-                                    left: -_slideWidth * $slideWrapper.data('current') + 2 * thumbSize * $slideWrapper.data('current')
-                                });
+                            $slideWrapper.css({
+                                left: -_slideWidth * $slideWrapper.data('current') + thumbWidth * $slideWrapper.data('current')
+                            });
 
-                                $this.width(_slideWidth - 2 * thumbSize);
-                                $this.height(_slideHeight);
+                            $this.width(_slideWidth - thumbWidth);
+                            $this.height(_slideHeight);
 
-                                $slide.width(_slideWidth - 2 * thumbSize);
-                                $slide.height(_slideHeight);
+                            $slide.width(_slideWidth - thumbWidth);
+                            $slide.height(_slideHeight);
 
-                                $thumbnail.width(3 * thumbSize);
-                                $thumbnail.height(_slideHeight);
+                            $thumbnail.width(thumbWidth);
+                            $thumbnail.height($slide.height());
 
-                                $thumbWrapper.width(thumbSize);
-                                $thumbWrapper.height($thumb.height() * slideCount);
+                            $thumbWrapper.width(thumbWidth);
+                            $thumbWrapper.height($thumb.height() * slideCount);
 
-                                $this.css('margin-left', 2 * thumbSize + 'px');
+                            $this.css("margin-left", thumbWidth + 'px');
 
-                                $link.css('margin-left', -1 * thumbSize + 'px');
+                            $this.css('float', 'left');
 
-                                $thumbWrapper.css('margin-left', thumbSize + 'px');
+                            $thumb.css('float', 'none');
 
-                                $thumb.css('float', 'none');
-
-                                $this.css('float', 'left');
-
-                            } else {
-
-                                $slideWrapper.css({
-                                    left: -_slideWidth * $slideWrapper.data('current') + thumbSize * $slideWrapper.data('current')
-                                });
-
-                                $this.width(_slideWidth - thumbSize);
-                                $this.height(_slideHeight);
-
-                                $slide.width(_slideWidth - thumbSize);
-                                $slide.height(_slideHeight);
-
-                                $thumbnail.width(thumbSize);
-                                $thumbnail.height($slide.height());
-
-                                $thumbWrapper.width(thumbSize);
-                                $thumbWrapper.height($thumb.height() * slideCount);
-
-                                $this.css("margin-left", thumbSize + 'px');
-
-                                $this.css('float', 'left');
-
-                                $thumb.css('float', 'none');
-                            }
 
                             break;
 
 
                         case 'right':
 
-                            $thumbnail.width(thumbSize);
+                            $thumbnail.width(thumbWidth);
                             $thumbnail.height(_slideHeight);
 
-                            thumbsPerSlide = _slideHeight / thumbSize;
-
-                            if (settings.links) {
-
-                                $slideWrapper.css({
-                                    left: -_slideWidth * $slideWrapper.data('current') + 2 * thumbSize * $slideWrapper.data('current')
-                                });
-
-                                $this.width(_slideWidth - 2 * thumbSize);
-                                $this.height(_slideHeight);
-
-                                $slide.width(_slideWidth - 2 * thumbSize);
-                                $slide.height(_slideHeight);
+                            thumbsPerSlide = _slideHeight / thumbHeight;
 
 
-                                $thumbnail.width(2 * thumbSize);
-                                $thumbnail.height($slide.height());
+                            $slideWrapper.css({
+                                left: -_slideWidth * $slideWrapper.data('current') + thumbWidth * $slideWrapper.data('current')
+                            });
 
-                                $thumbWrapper.width(thumbSize);
-                                $thumbWrapper.height(thumbSize * slideCount);
+                            $this.width(_slideWidth - thumbWidth);
+                            $this.height(_slideHeight);
 
-                                $thumbnail.css('margin-left', _slideWidth - 2 * thumbSize);
+                            $slide.width(_slideWidth - thumbWidth);
+                            $slide.height(_slideHeight);
 
-                                $thumbnail.css({
-                                    position: 'absolute',
-                                    left: 0
-                                });
+                            $thumbnail.width(thumbWidth);
+                            $thumbnail.height($slide.height());
 
-                                $thumb.css('float', 'none');
+                            $thumbWrapper.width(thumbWidth);
+                            $thumbWrapper.height($thumb.height() * slideCount);
 
-                                $this.css('float', 'left');
+                            $thumbnail.css('margin-left', _slideWidth - thumbWidth);
 
-                            } else {
+                            $this.css("margin-right", thumbWidth + 'px');
 
-                                $slideWrapper.css({
-                                    left: -_slideWidth * $slideWrapper.data('current') + thumbSize * $slideWrapper.data('current')
-                                });
+                            $this.css('float', 'left');
 
-                                $this.width(_slideWidth - thumbSize);
-                                $this.height(_slideHeight);
+                            $thumb.css('float', 'none');
 
-                                $slide.width(_slideWidth - thumbSize);
-                                $slide.height(_slideHeight);
-
-                                $thumbnail.width(thumbSize);
-                                $thumbnail.height($slide.height());
-
-                                $thumbWrapper.width(thumbSize);
-                                $thumbWrapper.height($thumb.height() * slideCount);
-
-                                $thumbnail.css('margin-left', _slideWidth - thumbSize);
-
-                                $this.css("margin-right", thumbSize + 'px');
-
-                                $this.css('float', 'left');
-
-                                $thumb.css('float', 'none');
-                            }
 
                             break;
-
+                        default :
+                            alert('Неверное значение в thumbPos');
                     }
                 }
 
-                $thumb.addClass('active');
+                $thumb.first().addClass('active');
                 $slideWrapper.width(slideCount * $slide.width());
                 hideControls();
 
@@ -471,9 +415,20 @@
                 }
 
             }
+            //$thumbnail.hover(function () {
+            //    $(window).bind('mousewheel DOMMouseScroll', function(event){
+            //        if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+            //            prevThumbs(direction);
+            //        }
+            //        else {
+            //            nextThumbs(direction);
+            //        }
+            //    });
+            //});
 
             $this.hover(function () { //стопаем автоскролл при наведении на слайдер
                 clearInterval(sliderTimer);
+
             }, function () {
                 startAutoSlide()
             });
@@ -488,23 +443,23 @@
                 prevSlide();
             });
 
-            $this.parent().find('.arrow_thumb.next').click(function (event) {
+            $parent.find('.arrow_thumb.next').click(function (event) {
                 event.preventDefault();
                 nextThumbs(direction);
             });
 
-            $this.parent().find('.arrow_thumb.prev').click(function (event) {
+            $parent.find('.arrow_thumb.prev').click(function (event) {
                 event.preventDefault();
                 prevThumbs(direction);
             });
 
 
-            $this.parent().find('.arrow_thumb_vert.next').click(function (event) {
+            $parent.find('.arrow_thumb_vert.next').click(function (event) {
                 event.preventDefault();
                 nextThumbs(direction);
             });
 
-            $this.parent().find('.arrow_thumb_vert.prev').click(function (event) {
+            $parent.find('.arrow_thumb_vert.prev').click(function (event) {
                 event.preventDefault();
                 prevThumbs(direction);
             });
@@ -578,9 +533,9 @@
                 changeControlSlide(currentSlide);
             }
 
-            function setSlide(slide) { //функция, переключающая слайд по индексу
-                var statedSlide = slide.index();
-                setThumbs(slide, direction);
+            function setSlide(index) { //функция, переключающая слайд по индексу
+                var statedSlide = index;
+                setThumbs(index, direction);
 
                 $slideWrapper.animate({
                     left: -(statedSlide) * $slide.width()
@@ -594,8 +549,8 @@
             function changeControlSlide(index) { //функция, переключающая управляющие элементы в статус active
                 $this.find('.control-slide.active').removeClass('active');
                 $this.find('.control-slide:eq(' + index + ')').addClass('active');
-                $this.parent().find('.thumb.active').removeClass('active');
-                $this.parent().find('.thumb:eq(' + index + ')').addClass('active');
+                $parent.find('ul.thumbnail-container li.active').removeClass('active');
+                $parent.find('ul.thumbnail-container li:eq(' + index + ')').addClass('active');
             }
 
             function nextThumbs(direction) {
@@ -645,9 +600,9 @@
                 }
             }
 
-            function setThumbs(slide) {
+            function setThumbs(index) {
 
-                var statedSlide = parseInt(slide.index() / thumbsPerSlide);
+                var statedSlide = parseInt(index / thumbsPerSlide);
 
                 if (direction == 'vertical') {
                     $thumbWrapper.animate({
