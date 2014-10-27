@@ -4,7 +4,9 @@
  * Time: 11:52
  */
 
+
 (function ($) {
+
     $.fn.slider = function (options) {
 
         var settings = $.extend({
@@ -17,10 +19,10 @@
             'thumbSize': 75, // размер превью
             'responsivity': 'parent', // 'parentHeight', 'parentWidth',
             'resolution': '3:2', //отношение сторон слайдера (ширина/высота)
-            'caption': false //подписи слайдеров
+            'caption': false, //подписи слайдеров
+            'theme': 'default-theme' // тема оформления (имя файла .css в /css)
         }, options);
 
-        //todo сделать темы оформления
         //todo оптимизировать вычисление динамических элементов
         //todo сделать различные варианты вписывания картинок в слайд
 
@@ -43,23 +45,25 @@
                 thumbWidth,
                 thumbHeight,
                 $sliderControls = $('<div/>', { //контейнер селекторов
-                    class: 'slider-controls',
-                    style: 'display: none;'
+                    class: 'slider-controls'
                 }),
                 $controlSlide = $('<span/>', { //
-                    class: 'control-slide',
-                    style: 'width: 12px; height: 12px;'
+                    class: 'control-slide'
                 }),
                 $caption = $('<div/>', {
-                    class: 'caption',
-                    style: 'display: none;'
+                    class: 'caption'
                 }),
 
                 sliderTimer;
-
+            $parent.addClass(settings.theme);
             $this.css({
                 overflow: 'hidden',
                 position: 'relative'
+            });
+
+            $thumbnail.css({
+                overflow: 'hidden',
+                position: 'absolute'
             });
 
             initSlider();
@@ -70,17 +74,16 @@
                     addArrows()
                 }
 
-
-                if (settings.selector) {
-                    addControls()
-                }
-
                 if (settings.caption) {
                     addCaptions()
                 }
 
                 if (settings.thumbnail) {
-                    addThumbnails();
+                    addThumbnails()
+                }
+
+                if (settings.selector) {
+                    addControls()
                 }
 
                 setSliderSize();
@@ -88,37 +91,10 @@
 
                 resizeImg();
 
-
                 setDirection();
                 startAutoSlide();
-            }
 
-            function setSliderSize() {
-                var resArr = settings.resolution.split(':'),
-                    resW = resArr[0],
-                    resH = resArr[1];
-                if (settings.responsivity == 'parent') {
-                    slideWidth = $parent.width(); //ширина родителя слайдера
-                    slideHeight = $parent.height(); //высота родителя слайдера
-                } else if (settings.responsivity == 'parentWidth') {
-                    slideWidth = $parent.width();
-                    slideHeight = slideWidth / resW * resH;
-                } else if (settings.responsivity == 'parentHeight') {
-                    slideHeight = $parent.height();
-                    slideWidth = slideHeight / resH * resW;
-                }
-            }
 
-            function hideControls() { //скрываем "кружочки" и подписи, если они шире слайда, и показываем - если уже
-                var controlsWidth = $controlSlide.width(),
-                    _slideWidth = $slide.width();
-                if ((slideCount + 4) * controlsWidth > _slideWidth) {
-                    $sliderControls.fadeOut(200);
-                    $slide.find('.caption').fadeOut(200);
-                } else if ((slideCount + 4) * controlsWidth < _slideWidth) {
-                    $sliderControls.fadeIn(200);
-                    $slide.find('.caption').fadeIn(200);
-                }
             }
 
             function addArrows() {
@@ -133,68 +109,14 @@
                 });
             }
 
-            function addControls() { //добавляем кружочки-селекторы
-                $controlSlide.addClass('active');
-                $slide.each(function () {
-                    var $cloneSlide = $controlSlide.clone();
-                    $cloneSlide.click(function (event) {
-                        event.preventDefault();
-                        if (settings.thumbnail) {
-                            if ((settings.thumbPos == 'top') || (settings.thumbPos == 'bottom')) {
-                                setSlide($(this).index());
-                            } else if ((settings.thumbPos == 'left') || (settings.thumbPos == 'right')) {
-                                setSlide($(this).index());
-                            }
-                        } else {
-                            setSlide($(this).index());
-                        }
-                    });
-                    $sliderControls.append($cloneSlide);
-                    $sliderControls.css('margin-left', -$controlSlide.width() * slideCount / 2);
-                    $controlSlide.removeClass('active');
-                });
-
-                $this.append($sliderControls);
-            }
-
-            function resizeImg() { //подгоняем img под размеры слайдов, аналогично background: cover
-
-                $slide.each(function () {
-
-                    var $slide = $(this),
-                        $img = $slide.find('img'),
-                        imageWidth,
-                        imageHeight;
-
-                    image.src = $img.attr('src');
-                    imageWidth = image.width;
-                    imageHeight = image.height;
-
-                    if (slideWidth / imageWidth > slideHeight / imageHeight) {
-
-                        $img.width(slideWidth);
-                        $img.height(slideWidth / imageWidth * imageHeight);
-
-                    } else {
-
-                        $img.height(slideHeight);
-                        $img.width(slideHeight / imageHeight * imageWidth);
-
-                    }
-                });
-            }
-
             function addThumbnails() { //добавляем превью
 
                 if (settings.thumbnail == 'custom') {
 
-                    thumbWidth = $thumb.first().width();
-                    thumbHeight = $thumb.first().height();
+                    thumbWidth = $thumb.width();
+                    thumbHeight = $thumb.height();
 
-                    $thumbnail.css({
-                        overflow: 'hidden',
-                        position: 'absolute'
-                    });
+                    //alert(thumbWidth + ' ' + thumbHeight);
 
                     if ($thumbWrapper.size() == 1) {
                         $thumbWrapper.children().each(function () {
@@ -255,6 +177,91 @@
                     }
                 }
             }
+
+            function addControls() { //добавляем кружочки-селекторы
+                $controlSlide.addClass('active');
+
+                $slide.each(function () {
+                    var $cloneSlide = $controlSlide.clone();
+                    $cloneSlide.click(function (event) {
+                        event.preventDefault();
+                        if (settings.thumbnail) {
+                            if ((settings.thumbPos == 'top') || (settings.thumbPos == 'bottom')) {
+                                setSlide($(this).index());
+                            } else if ((settings.thumbPos == 'left') || (settings.thumbPos == 'right')) {
+                                setSlide($(this).index());
+                            }
+                        } else {
+                            setSlide($(this).index());
+                        }
+                    });
+                    $sliderControls.append($cloneSlide);
+
+                    $controlSlide.removeClass('active');
+                });
+                $this.append($sliderControls);
+
+                $sliderControls.css('margin-left', -$this.find('.control-slide').width() * slideCount / 2);
+            }
+
+            function setSliderSize() {
+                var resArr = settings.resolution.split(':'),
+                    resW = resArr[0],
+                    resH = resArr[1];
+                if (settings.responsivity == 'parent') {
+                    slideWidth = $parent.width(); //ширина родителя слайдера
+                    slideHeight = $parent.height(); //высота родителя слайдера
+                } else if (settings.responsivity == 'parentWidth') {
+                    slideWidth = $parent.width();
+                    slideHeight = slideWidth / resW * resH;
+                } else if (settings.responsivity == 'parentHeight') {
+                    slideHeight = $parent.height();
+                    slideWidth = slideHeight / resH * resW;
+                }
+            }
+
+            function hideControls() { //скрываем "кружочки" и подписи, если они шире слайда, и показываем - если уже
+                var controlsWidth = $sliderControls.width(),
+                    _slideWidth = $slide.width();
+
+                if (controlsWidth > _slideWidth) {
+                    //alert('hide');
+                    $sliderControls.fadeOut(1);
+                    $slide.find('.caption').fadeOut(1);
+                } else if (controlsWidth < _slideWidth) {
+                    //alert('show');
+                    $sliderControls.fadeIn(200);
+                    $slide.find('.caption').fadeIn(200);
+                }
+            }
+
+            function resizeImg() { //подгоняем img под размеры слайдов, аналогично background: cover
+
+                $slide.each(function () {
+
+                    var $slide = $(this),
+                        $img = $slide.find('img'),
+                        imageWidth,
+                        imageHeight;
+
+                    image.src = $img.attr('src');
+                    imageWidth = image.width;
+                    imageHeight = image.height;
+
+                    if (slideWidth / imageWidth > slideHeight / imageHeight) {
+
+                        $img.width(slideWidth);
+                        $img.height(slideWidth / imageWidth * imageHeight);
+
+                    } else {
+
+                        $img.height(slideHeight);
+                        $img.width(slideHeight / imageHeight * imageWidth);
+
+                    }
+                });
+            }
+
 
             function drawSlider(_slideWidth, _slideHeight) { //задаем размеры динамических элементов слайдера
 
@@ -415,6 +422,7 @@
                 }
 
             }
+
             //$thumbnail.hover(function () {
             //    $(window).bind('mousewheel DOMMouseScroll', function(event){
             //        if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
@@ -603,7 +611,6 @@
             function setThumbs(index) {
 
                 var statedSlide = parseInt(index / thumbsPerSlide);
-
                 if (direction == 'vertical') {
                     $thumbWrapper.animate({
                         top: -statedSlide * $slide.height()

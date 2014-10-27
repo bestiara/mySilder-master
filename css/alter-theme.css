@@ -1,0 +1,119 @@
+.alter-theme .arrow {
+    width: 32px;
+    height: 100%;
+    position: absolute;
+}
+
+.alter-theme .arrow_thumb {
+    width: 32px;
+    height: 100%;
+    position: absolute;
+}
+
+.alter-theme .arrow_thumb_vert {
+    width: 100%;
+    height: 32px;
+    position: absolute;
+}
+
+.alter-theme .arrow_thumb_vert.next {
+    bottom: 0;
+    background: url(../img/down.png) center center no-repeat;
+}
+
+.alter-theme .arrow_thumb_vert.prev {
+    top: 0;
+    background: url(../img/up.png) center center no-repeat;
+}
+
+.alter-theme .next {
+    right: 0;
+    background: url(../img/next.png) center center no-repeat;
+}
+
+.alter-theme .prev {
+    left: 0;
+    background: url(../img/prev.png) center center no-repeat;
+}
+
+.alter-theme .slider-controls {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    display: block;
+}
+
+.alter-theme .slider-controls .control-slide {
+    display: inline-block;
+    overflow: hidden;
+    text-indent: -9999px;
+    background: url(../img/radiobtn-a.png) center bottom no-repeat;
+    height: 12px;
+    width: 12px;
+}
+
+.alter-theme .slider-controls .control-slide.active {
+    background: url(../img/radiobtn.png) center bottom no-repeat;
+}
+
+.alter-theme .caption {
+    width: 100%;
+    height: 90px;
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    opacity: 0.6;
+    display: block;
+}
+
+.alter-theme .caption h1 {
+    opacity: 1;
+    color: black;
+    position: absolute;
+    margin: 0 0 0 50px;
+    line-height: 90px;
+    text-transform: uppercase;
+}
+
+.alter-theme ul.slidewrapper {
+    position: absolute;
+    /*left: 0;*/
+    /*top: 0;*/
+    margin: 0;
+    padding: 0;
+}
+
+.alter-theme ul.slidewrapper li {
+    float: left;
+    list-style: none;
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.alter-theme ul.thumbnail-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.alter-theme ul.thumbnail-container li {
+    float: left;
+    list-style: none;
+    background-size: cover;
+    width: 135px;
+    height: 90px
+}
+
+.alter-theme ul.thumbnail-container li.active {
+    opacity: 0.6;
+}
+
+.alter-theme .thumbnail-container li a {
+    color: #547b9c;
+    text-decoration: none;
+    position: absolute;
+}
