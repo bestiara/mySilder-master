@@ -20,11 +20,11 @@
             'responsivity': 'parent', // 'parentHeight', 'parentWidth',
             'resolution': '3:2', //отношение сторон слайдера (ширина/высота)
             'caption': false, //подписи слайдеров
-            'theme': 'default-theme' // тема оформления (имя файла .css в /css)
+            'theme': 'default-theme', // тема оформления (имя файла .css в /css)
+            'defaultImgResize': 'fill' //дефолтный стиль ресайза <img/> ('on-center' - по центру, 'stretch' - растянуть, 'on-size' - по размеру, 'fill' - заполнение)
         }, options);
 
         //todo оптимизировать вычисление динамических элементов
-        //todo сделать различные варианты вписывания картинок в слайд
 
         this.each(function () {
 
@@ -55,7 +55,9 @@
                 }),
 
                 sliderTimer;
+
             $parent.addClass(settings.theme);
+
             $this.css({
                 overflow: 'hidden',
                 position: 'relative'
@@ -130,20 +132,19 @@
                 } else {
 
                     var $thumbnail_ = $('<div/>', {
-                            class: 'thumbnail',
-                            style: 'overflow: hidden; position: absolute;'
-                        }),
-                        $thumbWrapper_ = $('<ul/>', {
-                            class: 'thumbnail-container'
-                            //width: slideCount * slideWidth
-                        }),
-                        $thumb_ = $('<li/>', {
-                            style: 'background-size: cover;'
-                        });
+                        class: 'thumbnail',
+                        style: 'overflow: hidden; position: absolute;'
+                    });
+                    var $thumbWrapper_ = $('<ul/>', {
+                        class: 'thumbnail-container'
+                        //width: slideCount * slideWidth
+                    });
+                    var $thumb_ = $('<li/>', {
+                        style: 'background-size: cover;'
+                    });
 
                     thumbWidth = settings.thumbSize;
                     thumbHeight = settings.thumbSize;
-                    //alert(thumbWidth + ' ' + thumbHeight);
 
                     $slide.each(function () {
                         var $slide = $(this),
@@ -166,8 +167,18 @@
                         $thumb_.removeClass('active');
                         $thumbnail_.append($thumbWrapper_);
                         $parent.append($thumbnail_);
+
                     });
+                    /////////////////////////////////////////////////////////
+                    //todo выяснить, почему затираются значения
+                    $thumbnail = $parent.find('.thumbnail');
+                    $thumbWrapper = $parent.find('.thumbnail-container');
+                    $thumb = $parent.find('ul.thumbnail-container li');
+                    /////////////////////////////////////////////////////////
                 }
+
+
+
 
                 if (settings.thumbnail) {
                     if ((settings.thumbPos == 'top') || (settings.thumbPos == 'bottom')) {
@@ -235,36 +246,74 @@
                 }
             }
 
-            function resizeImg() { //подгоняем img под размеры слайдов, аналогично background: cover
+            function checkResizeStyle(_img) {
+                var _return = false,
+                    imageResizeStyles = ['on-center', 'stretch', 'on-size', 'fill'];
+                for (i = 0; i < 4; i++) {
+                    if (_img.hasClass(imageResizeStyles[i])) {
+                        _return = true
+                    }
+                }
+                return _return
+            }
+
+            function resizeImg() { //подгоняем <img/> под размеры слайдов
 
                 $slide.each(function () {
 
                     var $slide = $(this),
                         $img = $slide.find('img'),
                         imageWidth,
-                        imageHeight;
-
+                        imageHeight,
+                        slideW = $slide.width(),
+                        slideH = $slide.height();
                     image.src = $img.attr('src');
                     imageWidth = image.width;
                     imageHeight = image.height;
 
-                    if (slideWidth / imageWidth > slideHeight / imageHeight) {
+                    if (!checkResizeStyle($img)) {
+                        $img.addClass(settings.defaultImgResize);
+                    }
 
-                        $img.width(slideWidth);
-                        $img.height(slideWidth / imageWidth * imageHeight);
+                    if ($img.hasClass('on-center')) {
 
-                    } else {
+                        //todo достаточно ли одного css?
 
-                        $img.height(slideHeight);
-                        $img.width(slideHeight / imageHeight * imageWidth);
+                    } else if ($img.hasClass('stretch')) {
 
+                        $img.height(slideH);
+                        $img.width(slideW);
+
+                    } else if ($img.hasClass('on-size')) {
+
+                        if (slideW / imageWidth > slideH / imageHeight) {
+                            $img.css('height', slideH);
+                            $img.css('width', 'auto');
+                        } else {
+                            $img.css('width', slideW);
+                            $img.css('height', 'auto');
+                        }
+
+
+                    } else if ($img.hasClass('fill')) {
+
+                        if (slideW / imageWidth > slideH / imageHeight) {
+
+                            $img.width(slideW);
+                            $img.height(slideW / imageWidth * imageHeight);
+
+                        } else {
+
+                            $img.height(slideH);
+                            $img.width(slideH / imageHeight * imageWidth);
+
+                        }
                     }
                 });
             }
 
 
             function drawSlider(_slideWidth, _slideHeight) { //задаем размеры динамических элементов слайдера
-
                 $slideWrapper.attr('data-current', 0);
                 $thumbWrapper.attr('data-current', 0);
 
@@ -281,8 +330,7 @@
 
                     $thumb.width(thumbWidth);
                     $thumb.height(thumbHeight);
-                    $thumbnail.height(thumbHeight);
-
+                    console.log($thumb);
                     switch (settings.thumbPos) {
 
                         case 'bottom':
