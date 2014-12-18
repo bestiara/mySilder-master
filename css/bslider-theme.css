@@ -1,49 +1,56 @@
-.default-theme .arrow {
+.slidewrapper img {
+    height: 200px;
+    width: 200px;
+    float: left;
+}
+
+.arrow {
+    width: 32px;
+    height: 100%;
+    visibility: hidden;
+    position: absolute;
+}
+
+.arrow_thumb {
     width: 32px;
     height: 100%;
     position: absolute;
 }
 
-.default-theme .arrow_thumb {
-    width: 32px;
-    height: 100%;
-    position: absolute;
-}
-
-.default-theme .arrow_thumb_vert {
+.arrow_thumb_vert {
     width: 100%;
     height: 32px;
     position: absolute;
 }
 
-.default-theme .arrow_thumb_vert.next {
+.arrow_thumb_vert.next {
     bottom: 0;
     background: url(../img/down.png) center center no-repeat;
 }
 
-.default-theme .arrow_thumb_vert.prev {
+.arrow_thumb_vert.prev {
     top: 0;
     background: url(../img/up.png) center center no-repeat;
 }
 
-.default-theme .next {
+.next {
     right: 0;
     background: url(../img/next.png) center center no-repeat;
 }
 
-.default-theme .prev {
+.prev {
     left: 0;
     background: url(../img/prev.png) center center no-repeat;
 }
 
-.default-theme .slider-controls {
+.slider-controls {
     position: absolute;
     bottom: 0;
     left: 50%;
     display: block;
 }
 
-.default-theme .slider-controls .control-slide {
+.slider-controls .control-slide {
     display: inline-block;
     overflow: hidden;
     text-indent: -9999px;
@@ -52,11 +59,11 @@
     width: 12px;
 }
 
-.default-theme .slider-controls .control-slide.active {
+.slider-controls .control-slide.active {
     background: url(../img/radiobtn-a.png) center bottom no-repeat;
 }
 
-.default-theme .caption {
+.caption {
     width: 100%;
     height: 90px;
     position: absolute;
@@ -66,7 +73,7 @@
     display: block;
 }
 
-.default-theme .caption h1 {
+.caption h1 {
     opacity: 1;
     color: white;
     position: absolute;
@@ -75,7 +82,7 @@
     text-transform: uppercase;
 }
 
-.default-theme ul.slidewrapper {
+ul.slidewrapper {
     position: absolute;
     /*left: 0;*/
     /*top: 0;*/
@@ -83,8 +90,9 @@
     padding: 0;
 }
 
-.default-theme ul.slidewrapper li {
-    /*float: left;*/
+ul.slidewrapper li {
+    background-color: #DDDDDD;
+    display: none;
     list-style: none;
     position: absolute;
     top: 0;
@@ -94,15 +102,11 @@
     padding: 0;
 }
 
-.default-theme ul.thumbnail-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    margin: 0;
-    padding: 0;
+ul.slidewrapper li.active {
+    display: inline;
 }
 
-.default-theme ul.thumbnail-container li {
+ul.thumbnails-wrapper li {
     float: left;
     list-style: none;
     background-size: cover;
@@ -110,17 +114,17 @@
     height: 115px;
 }
 
-.default-theme ul.thumbnail-container li.active {
+ul.thumbnails-wrapper li.active {
     opacity: 0.6;
 }
 
-.default-theme.thumbnail-container li a {
+.default-theme.thumbnails-wrapper li a {
     color: #547b9c;
     text-decoration: none;
     position: absolute;
 }
 
-.default-theme img.on-center {
+img.on-center {
     position: absolute;
     top: 0;
     left: 0;
@@ -131,7 +135,7 @@
     max-height: 100%;
 }
 
-.default-theme img.on-size {
+img.on-size {
     position: absolute;
     top: 0;
     left: 0;
