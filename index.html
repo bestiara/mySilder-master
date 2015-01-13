@@ -5,7 +5,6 @@
         <link rel="stylesheet" type="text/css" href="css/bslider-theme.css">
         <link rel="stylesheet" type="text/css" href="css/myslider-style.css">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-        <script src="js/slider-master.js"></script>
         <script src="js/bslider.js"></script>
         <script src="js/jquery.transit-master/jquery.transit.js"></script>
     </head>
@@ -36,7 +35,7 @@
                             </p>
                         </li>
                         <li data-url="http://www.google.com" data-text="Link 3" data-caption='caption third'>
-                            <img src="img/slider/3.jpg">
+                            <img src="img/slider/14.jpg">
                             <h4>Title 3</h4>
                             <p>
                                 In order to do this, lets take a more in depth look at the changeTab function. It sounds complicated, however its a trivial task to setup and allow the moveSlider functionality to be altered by the external options.
@@ -46,7 +45,7 @@
                             </p>
                         </li>
                         <li data-url="http://www.google.com" data-text="Link 4" data-caption='caption fourth'>
-                            <img src="img/slider/4.jpg">
+                            <img src="img/slider/21.jpg">
                             <h4>Title 4</h4>
                             <p>
                                 In order to do this, lets take a more in depth look at the changeTab function. It sounds complicated, however its a trivial task to setup and allow the moveSlider functionality to be altered by the external options.
@@ -64,7 +63,24 @@
                 </div>
             </div>
             <script>
-                $(".slider").bslider();
+                var content = 
+                    [{
+                        "title":"Альбом 1",
+                        "items":
+                        [
+                            {"url":'img/slider/9.jpg'},
+                            {'url':'img/slider/10.jpg'},
+                            {'url':'img/slider/11.jpg'},
+                            {'url':'img/slider/12.jpg'},
+                            {'url':'img/slider/13.jpg'},
+                            {'url':'img/slider/14.jpg'},
+                            {'url':'img/slider/15.jpg'},
+                            {'url':'img/slider/16.jpg'}
+                        ]
+                    }];
+                var bslider = $(".slider").bslider();
+                //console.log(content);
+                //bslider.setContent(content);
             </script>
     </body>
 </html>
